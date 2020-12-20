@@ -1,125 +1,134 @@
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.Comparator;
+import java.util.List;
 
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
+public class Main {
 
+    public static void main(String[] args) {
+        Graph g = new Graph();
+        g.addNode(new Node("a"));
+        g.addNode(new Node("b"));
+        g.addNode(new Node("c"));
+        g.addNode(new Node("d"));
+        g.addNode(new Node("e"));
+        g.addNode(new Node("f"));
 
-public class MainStub {
+        //all nodes are attached
 
-	@SuppressWarnings("unused")
-	private final static Random gen = new Random();
-	
-	public static ArrayList<Edge> genTree(Graph graph) {
-		ArrayList<Edge> randomTree;
-		
-		// TOOO : modifier l'algorithme utiliser ici.
-		
-		// Non-random BFS
-		ArrayList<Arc> randomArcTree = 
-				BreadthFirstSearch.generateTree(graph,0);
-		randomTree = new ArrayList<>();
-		for (Arc a : randomArcTree) randomTree.add(a.support);
-	
-		
-		
-		return randomTree;
-	}
-	
-	
-	public static void main(String argv[]) throws InterruptedException {
+        g.addEdge(new Edge(new Node("a"), new Node("b"), 1));
+        g.addEdge(new Edge(new Node("a"), new Node("c"), 1));
+        g.addEdge(new Edge(new Node("a"), new Node("d"), 1));
+        g.addEdge(new Edge(new Node("a"), new Node("e"), 1));
+        g.addEdge(new Edge(new Node("a"), new Node("f"), 1));
 
-		Grid grid = null;
-		grid = new Grid(1920/11,1080/11);
-		Graph graph = grid.graph;
-		
-//		Graph graph = new Complete(400).graph;
-		
-//		Graph graph = new ErdosRenyi(1_000, 100).graph;
+        g.addEdge(new Edge(new Node("b"), new Node("c"), 1));
+        g.addEdge(new Edge(new Node("b"), new Node("d"), 1));
+        g.addEdge(new Edge(new Node("b"), new Node("e"), 1));
+        g.addEdge(new Edge(new Node("b"), new Node("f"), 1));
 
-//		Graph graph = new Lollipop(1_000).graph;
-		
-		int nbrOfSamples = 10;
-		int diameterSum = 0;
-		double eccentricitySum = 0;
-		long wienerSum = 0;
-		int degreesSum[] = {0, 0, 0, 0, 0};
-		int degrees[];
-		
-		ArrayList<Edge> randomTree = null; 
-		RootedTree rooted = null;
-
-		long startingTime = System.nanoTime();
-		for (int i = 0; i < nbrOfSamples; i++) {
-			randomTree= genTree(graph);
-
-			rooted = new RootedTree(randomTree,0);
-//			rooted.printStats();
-			diameterSum = diameterSum + rooted.getDiameter();
-			eccentricitySum = eccentricitySum + rooted.getAverageEccentricity();
-			wienerSum = wienerSum + rooted.getWienerIndex();
-			
-			degrees = rooted.getDegreeDistribution(4);
-			for (int j = 1; j < 5; j++) {
-				degreesSum[j] = degreesSum[j] + degrees[j];
-			}
-		}		
-		long delay = System.nanoTime() - startingTime;
-		
-		System.out.println("On " + nbrOfSamples + " samples:");
-		System.out.println("Average eccentricity: "
-							+ (eccentricitySum / nbrOfSamples));
-		System.out.println("Average wiener index: " 
-							+ (wienerSum / nbrOfSamples));
-		System.out.println("Average diameter: " 
-							+ (diameterSum / nbrOfSamples));
-		System.out.println("Average number of leaves: " 
-							+ (degreesSum[1] / nbrOfSamples));
-		System.out.println("Average number of degree 2 vertices: "
-							+ (degreesSum[2] / nbrOfSamples));
-		System.out.println("Average computation time: " 
-							+ delay / (nbrOfSamples * 1_000_000) + "ms");
-		
-		
-		if (grid != null) showGrid(grid,rooted,randomTree);
-	}
-
-	private static void showGrid(
-			Grid grid, 
-			RootedTree rooted, 
-			ArrayList<Edge> randomTree
-			) throws InterruptedException {
-		JFrame window = new JFrame("solution");
-		final Labyrinth laby = new Labyrinth(grid, rooted);
-
-		laby.setStyleBalanced();
-//		laby.setShapeBigNodes();
-//		laby.setShapeSmallAndFull();
-		laby.setShapeSmoothSmallNodes();
-		
-		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		window.getContentPane().add(laby);
-		window.pack();
-		window.setLocationRelativeTo(null);
+        g.addEdge(new Edge(new Node("c"), new Node("d"), 1));
+        g.addEdge(new Edge(new Node("c"), new Node("e"), 1));
+        g.addEdge(new Edge(new Node("c"), new Node("f"), 1));
 
 
-		for (final Edge e : randomTree) {
-					laby.addEdge(e);
-		}
-		laby.drawLabyrinth();
+        g.addEdge(new Edge(new Node("d"), new Node("e"), 1));
+        g.addEdge(new Edge(new Node("d"), new Node("f"), 1));
 
-		window.setVisible(true);
-		
-		// Pour générer un fichier image.
-//		try {
-//			laby.saveImage("resources/random.png");
-//		} catch (IOException e1) {
-//			e1.printStackTrace();
-//		}
+        g.addEdge(new Edge(new Node("e"), new Node("f"), 1));
 
-	}
-	
-	
+
+        g.setEdgesToRandomWeightBtwn(0, 1);
+
+        g.printGraphEdgesWithWeight();
+        System.out.println("--------- Arbres couvrant de poids minimum aléatoire---------");
+        primWithWeightedTree(g).printGraphEdgesWithWeight();
+        System.out.println("--------- Algorithme d’Aldous-Broder---------");
+        adlousBroder(g).printGraphEdges();
+        System.out.println("--------- Insertion aléatoire d’arêtes---------");
+        randomInsertingEdges(g).printGraphEdges();
+        System.out.println("--------- Par suppression de sommet---------");
+        deleteRandomNode(g).printGraphEdges();
+    }
+
+
+    public static Graph primWithWeightedTree(Graph g) {
+
+        Graph resultGraph = new Graph();
+        DisjointSet<Node> ds = new DisjointSet<>();
+        List<Edge> edgesInAscOrder = g.getEdges();
+        edgesInAscOrder.sort(Comparator.comparing(Edge::getWeight));
+        for (Node node : g.getNodes()) {
+            ds.makeSet(node);
+        }
+
+        for (Edge edge : edgesInAscOrder) {
+            Node node1 = ds.find(edge.getNode1());
+            Node node2 = ds.find(edge.getNode2());
+            if (!ds.find(node1).equals(node2)) {
+                resultGraph.addEdge(edge);
+                ds.union(node1, node2);
+            }
+
+        }
+
+        return resultGraph;
+    }
+
+    public static Graph adlousBroder(Graph g) {
+        List<Node> notVisitedNodes = g.getNodes();
+
+        Graph resultGraph = new Graph();
+        resultGraph.setNodes(g.getNodes());
+
+        Node startingNode = g.getNodes().get((int) (Math.random() * ((g.getNodes().size() - 1) + 1))); // random node as starting node
+        notVisitedNodes.remove(startingNode);
+        Node currentNode = startingNode;
+        while (!notVisitedNodes.isEmpty()) {
+            List<Edge> edgesContainsCurrentNode = g.getEdgesContains(currentNode);
+            Edge randomEdge = edgesContainsCurrentNode.get((int) (Math.random() * ((edgesContainsCurrentNode.size() - 1) + 1))); // picking a random edge
+            Node nextNode = currentNode.equals(randomEdge.getNode1()) ? randomEdge.getNode2() : randomEdge.getNode1(); // getting node  from edge which not equal to current node
+            if (notVisitedNodes.contains(nextNode)) {
+                resultGraph.addEdge(randomEdge);
+                currentNode = nextNode;
+                notVisitedNodes.remove(currentNode);
+            }
+        }
+
+        return resultGraph;
+    }
+
+    public static Graph randomInsertingEdges(Graph graph) {
+        Graph resultGraph = new Graph();
+        resultGraph.setNodes(graph.getNodes());
+        DisjointSet<Node> ds = new DisjointSet<>();
+
+        for (Node node : graph.getNodes()) {
+            ds.makeSet(node);
+        }
+        while (resultGraph.getEdges().size() != graph.getNodes().size() - 1) { // |F| != |V | − 1
+            Edge randomEdge = graph.getEdges().get((int) (Math.random() * ((graph.getEdges().size() - 1) + 1))); // getting a random edge
+            if (!ds.find(randomEdge.getNode1()).equals(ds.find(randomEdge.getNode2()))) { // to prevent from cycles
+                ds.union(ds.find(randomEdge.getNode1()), ds.find(randomEdge.getNode2()));
+                resultGraph.addEdge(randomEdge);
+            }
+        }
+        return resultGraph;
+    }
+
+    public static Graph deleteRandomNode(Graph graph){
+        Graph resultGraph = new Graph();
+        resultGraph.setNodes(graph.getNodes());
+        resultGraph.setEdges(graph.getEdges());
+
+        Node randomNode = resultGraph.getNodes().get((int) (Math.random() * ((resultGraph.getNodes().size() - 1) + 1)));// get a random node
+        // get random edge that contains random node
+        Edge randomEdge = resultGraph.getEdgesContains(randomNode).get((int) (Math.random() * ((resultGraph.getEdgesContains(randomNode).size() - 1) + 1)));
+        resultGraph.nodes.remove(randomNode);// remove random node from graph
+        resultGraph.edges.removeAll(graph.getEdgesContains(randomNode)); //remove all edges that contains random node
+
+        resultGraph = adlousBroder(resultGraph); //generate a tree from the other nodes and edges (not containing the random node)
+        resultGraph.addNode(randomNode); // add random node to
+        resultGraph.addEdge(randomEdge);// add the random edge to make a link between the generated tree and random node
+
+        return resultGraph;
+    }
 }
