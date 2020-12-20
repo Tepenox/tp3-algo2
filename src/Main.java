@@ -81,13 +81,13 @@ public class Main {
         resultGraph.setNodes(g.getNodes());
 
         Node startingNode = g.getNodes().get((int) (Math.random() * ((g.getNodes().size() - 1) + 1))); // random node as starting node
-        notVisitedNodes.remove(startingNode);
+        notVisitedNodes.remove(startingNode); // remove starting Node  from notvisited list
         Node currentNode = startingNode;
         while (!notVisitedNodes.isEmpty()) {
             List<Edge> edgesContainsCurrentNode = g.getEdgesContains(currentNode);
-            Edge randomEdge = edgesContainsCurrentNode.get((int) (Math.random() * ((edgesContainsCurrentNode.size() - 1) + 1))); // picking a random edge
-            Node nextNode = currentNode.equals(randomEdge.getNode1()) ? randomEdge.getNode2() : randomEdge.getNode1(); // getting node  from edge which not equal to current node
-            if (notVisitedNodes.contains(nextNode)) {
+            Edge randomEdge = edgesContainsCurrentNode.get((int) (Math.random() * ((edgesContainsCurrentNode.size() - 1) + 1))); // picking a random edge that contains current node
+            Node nextNode = currentNode.equals(randomEdge.getNode1()) ? randomEdge.getNode2() : randomEdge.getNode1(); // getting next Node from the edge that contains current Node
+            if (notVisitedNodes.contains(nextNode)) { // if next node is not visited yet
                 resultGraph.addEdge(randomEdge);
                 currentNode = nextNode;
                 notVisitedNodes.remove(currentNode);
