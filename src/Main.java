@@ -41,7 +41,7 @@ public class Main {
         g.setEdgesToRandomWeightBtwn(0, 1);
         g.printGraphEdgesWithWeight();
         System.out.println("--------- Arbres couvrant de poids minimum aléatoire---------");
-        primWithWeightedTree(g).printGraphEdgesWithWeight();
+        kruskalWithWeightedTree(g).printGraphEdgesWithWeight();
         System.out.println("--------- Algorithme d’Aldous-Broder---------");
         adlousBroder(g).printGraphEdges();
         System.out.println("--------- Insertion aléatoire d’arêtes---------");
@@ -51,7 +51,7 @@ public class Main {
     }
 
 
-    public static Graph primWithWeightedTree(Graph g) {
+    public static Graph kruskalWithWeightedTree(Graph g) {
 
         Graph resultGraph = new Graph();
         DisjointSet<Node> ds = new DisjointSet<>();
