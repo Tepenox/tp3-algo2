@@ -36,8 +36,9 @@ public class Main {
         g.addEdge(new Edge(new Node("e"), new Node("f"), 1));
 
 
-        g.setEdgesToRandomWeightBtwn(0, 1);
 
+
+        g.setEdgesToRandomWeightBtwn(0, 1);
         g.printGraphEdgesWithWeight();
         System.out.println("--------- Arbres couvrant de poids minimum aléatoire---------");
         primWithWeightedTree(g).printGraphEdgesWithWeight();
@@ -55,7 +56,7 @@ public class Main {
         Graph resultGraph = new Graph();
         DisjointSet<Node> ds = new DisjointSet<>();
         List<Edge> edgesInAscOrder = g.getEdges();
-        edgesInAscOrder.sort(Comparator.comparing(Edge::getWeight));
+        edgesInAscOrder.sort(Comparator.comparing(Edge::getWeight)); //sort edges by ascending order of weight
         for (Node node : g.getNodes()) {
             ds.makeSet(node);
         }
